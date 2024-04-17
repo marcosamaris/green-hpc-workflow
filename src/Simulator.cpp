@@ -55,6 +55,12 @@ int main(int argc, char **argv) {
     std::cerr << "The workflow has " << workflow->getNumberOfTasks() << " tasks " << std::endl;
     std::cerr.flush();
 
+    /* Reading and parsing the platform description file to instantiate a simulated platform */
+    std::cerr << "Instaling SimGrid platform..." << std::endl;
+    simulation->instantiatePlatform(platform_file);
+
+    
+
     /* Instantiating the simulated platform */
     simulation->instantiatePlatform(argv[1]);
 

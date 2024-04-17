@@ -1,0 +1,23 @@
+# Arquivos temporários do Emacs
+*~
+
+# Arquivos de backup do Emacs
+\#*\#
+
+# Arquivos de auto-save do Emacs
+.\#*
+
+# Arquivos de session do Emacs
+\#*.\#
+
+# Arquivos de lock do Emacs
+.\#*
+
+# Arquivos de cache do Emacs
+.cache/
+
+# Diretório de backup do Emacs
+.backup/
+
+# Diretório de auto-save do Emacs
+autosave/
