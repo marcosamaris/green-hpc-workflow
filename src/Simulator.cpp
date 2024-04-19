@@ -59,20 +59,19 @@ int main(int argc, char **argv) {
     std::cerr << "Instaling SimGrid platform..." << std::endl;
     simulation->instantiatePlatform(platform_file);
 
-    /* List of storage service */
-    std::set<std::shared_ptr<wrench::storageService>> storage_service;
+    /* List of storage services */
+    std::set<std::shared_ptr<wrench::storageService>> storage_services;
 
     std::cerr << "Instantiating a SimpleStorageService on WMSHost " << std::endl;
     auto storage_service = simulation->add(wrench::SimpleStorageService::createSimpleStorageService({"WMSHost"}, {"/"}));
-    storage_service.insert(storage_service);
+    storage_services.insert(storage_service);
+
+    /* List of computer services */
+    std::set<std::shared_ptr<wrench::ComputeService>> compute_services;
 
     
     /* Instantiating the simulated platform */
     simulation->instantiatePlatform(argv[1]);
-
-    /* Instantiate a storage service on the platform */
-    auto storage_service = simulation->add(wrench::SimpleStorageService::createSimpleStorageService(
-            "StorageHost", {"/"}, {}, {}));
 
     /* Instantiate a bare-metal compute service on the platform */
     auto baremetal_service = simulation->add(new wrench::BareMetalComputeService(
