@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     std::cerr << "Instaling SimGrid platform..." << std::endl;
     simulation->instantiatePlatform(platform_file);
 
-    
+    std::set<std::shared_ptr<wrench::storageService>> storage_service;
 
     /* Instantiating the simulated platform */
     simulation->instantiatePlatform(argv[1]);
