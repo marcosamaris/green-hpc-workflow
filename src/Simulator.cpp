@@ -59,8 +59,14 @@ int main(int argc, char **argv) {
     std::cerr << "Instaling SimGrid platform..." << std::endl;
     simulation->instantiatePlatform(platform_file);
 
+    /* List of storage service */
     std::set<std::shared_ptr<wrench::storageService>> storage_service;
 
+    std::cerr << "Instantiating a SimpleStorageService on WMSHost " << std::endl;
+    auto storage_service = simulation->add(wrench::SimpleStorageService::createSimpleStorageService({"WMSHost"}, {"/"}));
+    storage_service.insert(storage_service);
+
+    
     /* Instantiating the simulated platform */
     simulation->instantiatePlatform(argv[1]);
 
