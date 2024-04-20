@@ -88,14 +88,13 @@ int main(int argc, char **argv) {
 					std::exit(1);
 				}
     
-    
-    
+		/* Instantiating the WMS for executing workflow */	
+		std::cerr << "Instatiating a WMS on WMSHost..." << std::endl;
+		auto wms = simulation->add(
+				new wrench::SimpleWMS(workflow, batch_compute_service, storage_service, {"WMSHost"}));
+
     /* Instantiating the simulated platform */
     simulation->instantiatePlatform(argv[1]);
-
-    /* Instantiate a bare-metal compute service on the platform */
-    auto baremetal_service = simulation->add(new wrench::BareMetalComputeService(
-            "ComputeHost", {"ComputeHost"}, "", {}, {}));
 
     /* Instantiate an execution controller */
     auto controller = simulation->add(
