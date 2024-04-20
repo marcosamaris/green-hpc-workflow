@@ -17,6 +17,7 @@
  **/
 
 #include <iostream>
+#include <stdexcept>
 #include <wrench-dev.h>
 
 #include "Controller.h"
@@ -60,7 +61,7 @@ int main(int argc, char **argv) {
     simulation->instantiatePlatform(platform_file);
 
     /* List of storage services */
-    std::set<std::shared_ptr<wrench::storageService>> storage_services;
+    std::set<std::shared_ptr<wrench::StorageService>> storage_services;
 
     std::cerr << "Instantiating a SimpleStorageService on WMSHost " << std::endl;
     auto storage_service = simulation->add(wrench::SimpleStorageService::createSimpleStorageService({"WMSHost"}, {"/"}));
@@ -69,6 +70,25 @@ int main(int argc, char **argv) {
     /* List of computer services */
     std::set<std::shared_ptr<wrench::ComputeService>> compute_services;
 
+		/* Configures a batch computing service */
+    std::shared_ptr<wrench::BatchComputeService> batch_compute_service;
+
+    #ifndef ENABLE_BATSCHED
+        std::string scheduling_algorithm = "conservative_bf_core_level";
+    #else
+        std::string scheduling_algorithm = "conservative_bf";
+    #endif
+        try {
+          batch_compute_service = simulation->add(new wrench::BatchComputeService(
+						{"BatchHeadNode"}, {{"BatchNode1"}, {"BatchNode2"}}, "",
+						{{wrench::BatchComputeServiceProperty::BATCH_SCHEDULING_ALGORITHM, scheduling_algorithm}},
+						{{wrench::BatchComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 2048}}));
+        } catch (std::invalid_argument &e) {
+					std::cerr << "Error: " << e.what() << std::endl;
+					std::exit(1);
+				}
+    
+    
     
     /* Instantiating the simulated platform */
     simulation->instantiatePlatform(argv[1]);
