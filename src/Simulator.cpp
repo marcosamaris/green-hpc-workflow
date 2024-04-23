@@ -19,6 +19,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <wrench-dev.h>
+#include <wrench/services/file_registry/FileRegistryService.h>
 
 #include "Controller.h"
 #include "wrench/tools/wfcommons/WfCommonsWorkflowParse.h"
@@ -93,12 +94,20 @@ int main(int argc, char **argv) {
 		auto wms = simulation->add(
 				new wrench::SimpleWMS(workflow, batch_compute_service, storage_service, {"WMSHost"}));
 
-    /* Instantiating the simulated platform */
-    simulation->instantiatePlatform(argv[1]);
+		/* Instantiate a file registry service to be started on some host */
+		std::string file_registry_service_host = hostname_list[(hostname_list.size() > 2) ? 1 : 0];
+		std::cerr << "Instantiating a FileRegistryService on " << file_registry_service_host << "..." << std::endl;
+		auto file_registry_service = simulation->add(new wrench::FileRegistryService(file_registry_service_host));
 
-    /* Instantiate an execution controller */
-    auto controller = simulation->add(
-            new wrench::Controller(baremetal_service, storage_service, "UserHost"));
+		std:cerr << "Staging input files..." << std::endl;
+		for (auto const &f: workflow->getInputFiles()) {
+			try {
+				simulation->stageFile(f, storage_services);
+			} catch (std::runtime_error &e) {
+				std::cerr << "Exception: " << e.what() << std::endl;
+				return 0;
+			}
+		}
 
     /* Launch the simulation */
     simulation->launch();
