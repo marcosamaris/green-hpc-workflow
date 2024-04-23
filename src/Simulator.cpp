@@ -109,8 +109,23 @@ int main(int argc, char **argv) {
 			}
 		}
 
+		/* Enable some output Workflow Task time stamps */
+		simulation->getOutput().enableWorkflowTaskTimestamps(true);
+		/* Enable some output Energy time stamps */
+		simulation->getOutput().enableEnergyTimestamps(true);
+
     /* Launch the simulation */
-    simulation->launch();
+		std::cerr << "Launching the Simulation..." << std::endl;
+		try {
+    	simulation->launch();
+		} catch (std::runtime_error &e) {
+			std::cerr << "Exception: " << e.what() << std::endl;
+			return 0;
+		}
+		std::cerr << "Simulation Done!" << std::endl;
+		std::cerr << "Workflow completed at time: " << workflow->getCompletionDate() << std::endl;
+
+		simulation->getOutput().dumpWorkflowGraphJSON(workflow, "/temp/workflow.json", true);
 
     return 0;
 }
