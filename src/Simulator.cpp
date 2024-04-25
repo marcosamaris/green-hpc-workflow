@@ -33,45 +33,65 @@
  */
 int main(int argc, char **argv) {
 
-    /* Create a WRENCH simulation object */
+    /*
+     * Create a WRENCH simulation object
+     */
     auto simulation = wrench::Simulation::createSimulation();
 
-    /* Initialize the simulation */
+    /*
+     * Initialize the simulation
+     */
     simulation->init(&argc, argv);
 
-    /* Parsing of the command-line arguments */
+    /*
+     * Parsing of the command-line arguments
+     */
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <xml platform file> [--log=controller.threshold=info | --wrench-full-log]" << std::endl;
         exit(1);
     }
 
-    /* The first argument is the platform description file, written in XML following the SimGrid-defined DTD */
+    /*
+     * The first argument is the platform description file, written in XML following the SimGrid-defined DTD
+     */
     char *platform_file = argv[1];
-    /* The second argument is the workflow description file, written in JSON using WfCommons's WfFormat format */
+    /*
+     * The second argument is the workflow description file, written in JSON using WfCommons's WfFormat format
+     */
     char *workflow_file = argv[2];
 
-    /* Reading and parsing the workflow description file to create a wrench::workflow object */
+    /*
+     * Reading and parsing the workflow description file to create a wrench::workflow object
+     */
     std::cerr << "Loading workflow..." << std::endl;
     std::shared_ptr<wrench::Workflow> workflow;
     workflow = wrench::WfCommonsWorkflowParse::CreateWorkflowFromJSON(workflow_file, "100Gf", true);
     std::cerr << "The workflow has " << workflow->getNumberOfTasks() << " tasks " << std::endl;
     std::cerr.flush();
 
-    /* Reading and parsing the platform description file to instantiate a simulated platform */
+    /*
+     * Reading and parsing the platform description file to instantiate a simulated platform
+     */
     std::cerr << "Instaling SimGrid platform..." << std::endl;
     simulation->instantiatePlatform(platform_file);
 
-    /* List of storage services */
+    /*
+     * List of storage services
+     */
     std::set<std::shared_ptr<wrench::StorageService>> storage_services;
 
     std::cerr << "Instantiating a SimpleStorageService on WMSHost " << std::endl;
     auto storage_service = simulation->add(wrench::SimpleStorageService::createSimpleStorageService({"WMSHost"}, {"/"}));
     storage_services.insert(storage_service);
 
-    /* List of computer services */
+    /*
+     * List of computer services
+     */
     std::set<std::shared_ptr<wrench::ComputeService>> compute_services;
 
-		/* Configures a batch computing service */
+	/*
+     * Configures a batch computing service
+     */
     std::shared_ptr<wrench::BatchComputeService> batch_compute_service;
 
     #ifndef ENABLE_BATSCHED
@@ -87,45 +107,79 @@ int main(int argc, char **argv) {
         } catch (std::invalid_argument &e) {
 					std::cerr << "Error: " << e.what() << std::endl;
 					std::exit(1);
-				}
-    
-		/* Instantiating the WMS for executing workflow */	
-		std::cerr << "Instatiating a WMS on WMSHost..." << std::endl;
-		auto wms = simulation->add(
-				new wrench::SimpleWMS(workflow, batch_compute_service, storage_service, {"WMSHost"}));
-
-		/* Instantiate a file registry service to be started on some host */
-		std::string file_registry_service_host = hostname_list[(hostname_list.size() > 2) ? 1 : 0];
-		std::cerr << "Instantiating a FileRegistryService on " << file_registry_service_host << "..." << std::endl;
-		auto file_registry_service = simulation->add(new wrench::FileRegistryService(file_registry_service_host));
-
-		std:cerr << "Staging input files..." << std::endl;
-		for (auto const &f: workflow->getInputFiles()) {
-			try {
-				simulation->stageFile(f, storage_services);
-			} catch (std::runtime_error &e) {
-				std::cerr << "Exception: " << e.what() << std::endl;
-				return 0;
-			}
 		}
+    
+	/*
+     * Instantiating the WMS for executing workflow
+     */	
+	std::cerr << "Instatiating a WMS on WMSHost..." << std::endl;
+	auto wms = simulation->add(
+	new wrench::SimpleWMS(workflow, batch_compute_service, storage_service, {"WMSHost"}));
 
-		/* Enable some output Workflow Task time stamps */
-		simulation->getOutput().enableWorkflowTaskTimestamps(true);
-		/* Enable some output Energy time stamps */
-		simulation->getOutput().enableEnergyTimestamps(true);
+	/*
+     * Instantiate a file registry service to be started on some host
+     */
+	std::string file_registry_service_host = hostname_list[(hostname_list.size() > 2) ? 1 : 0];
+	std::cerr << "Instantiating a FileRegistryService on " << file_registry_service_host << "..." << std::endl;
+	auto file_registry_service = simulation->add(new wrench::FileRegistryService(file_registry_service_host));
 
-    /* Launch the simulation */
-		std::cerr << "Launching the Simulation..." << std::endl;
-		try {
-    	simulation->launch();
+	std:cerr << "Staging input files..." << std::endl;
+    for (auto const &f: workflow->getInputFiles()) {
+        try {
+            simulation->stageFile(f, storage_services);
 		} catch (std::runtime_error &e) {
-			std::cerr << "Exception: " << e.what() << std::endl;
+		    std::cerr << "Exception: " << e.what() << std::endl;
 			return 0;
 		}
-		std::cerr << "Simulation Done!" << std::endl;
-		std::cerr << "Workflow completed at time: " << workflow->getCompletionDate() << std::endl;
+    }
 
-		simulation->getOutput().dumpWorkflowGraphJSON(workflow, "/temp/workflow.json", true);
+	/*
+     * Enable some output Workflow Task time stamps
+     */
+	simulation->getOutput().enableWorkflowTaskTimestamps(true);
+	/*
+     * Enable some output Energy time stamps
+     */
+	simulation->getOutput().enableEnergyTimestamps(true);
 
+    /*
+     * Launch the simulation
+     */
+	std::cerr << "Launching the Simulation..." << std::endl;
+	try {
+        simulation->launch();
+	} catch (std::runtime_error &e) {
+	    std::cerr << "Exception: " << e.what() << std::endl;
+		return 0;
+    }
+	std::cerr << "Simulation Done!" << std::endl;
+	std::cerr << "Workflow completed at time: " << workflow->getCompletionDate() << std::endl;
+
+	simulation->getOutput().dumpWorkflowGraphJSON(workflow, "/temp/workflow.json", true);
+
+    /*
+     * Through some time-stamps and compute some statistics
+     */
+    std::vector<wrench::SimulationTimestamp<wrench::SimulationTimestampTaskCompletion> *> trace;
+    trace = simulation->getOutput().getTrace<wrench::SimulationTimestampTaskCompletion>();
+    std::cerr << "Number of entries in TaskCompletion trace: " << trace.size() << std::endl;
+    unsigned long num_failed_tasks = 0;
+    double computation_communication_ratio_average = 0.0;
+    for (const auto &item: trace) {
+      auto task = item->getContent()->getTask();
+      if (task->getExecutionHistory().size() > 1) {
+        num_failed_tasks++;
+      }
+      double io_time = task->getExecutionHistory().top().read_input_end - task->getExecutionHistory().top().read_input_start;
+      io_time += task->getExecutionHistory().top().write_output_end - task->getExecutionHistory().top().write_output_start;
+      double compute_time = task->getExecutionHistory().top().computation_end - task->getExecutionHistory().top().computation_start;
+      computation_communication_ratio_average += compute_time / io_time;
+    }
+
+    computation_communication_ratio_average /= (double) (trace.size());
+
+    std::cerr << "Number of tasks that failed at least once: " << num_failed_tasks << "\n";
+    std::cerr << "Average computation time / communication+IO time ratio over all tasks: " << computation_communication_ratio_average << "\n";
+    
     return 0;
 }
