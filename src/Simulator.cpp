@@ -31,7 +31,8 @@
  * @param argv: argument array
  * @return 0 on success, non-zero otherwise
  */
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 
     /*
      * Create a WRENCH simulation object
@@ -46,7 +47,8 @@ int main(int argc, char **argv) {
     /*
      * Parsing of the command-line arguments
      */
-    if (argc != 2) {
+    if (argc != 2)
+    {
         std::cerr << "Usage: " << argv[0] << " <xml platform file> [--log=controller.threshold=info | --wrench-full-log]" << std::endl;
         exit(1);
     }
@@ -89,73 +91,84 @@ int main(int argc, char **argv) {
      */
     std::set<std::shared_ptr<wrench::ComputeService>> compute_services;
 
-	/*
+    /*
      * Configures a batch computing service
      */
     std::shared_ptr<wrench::BatchComputeService> batch_compute_service;
 
-    #ifndef ENABLE_BATSCHED
-        std::string scheduling_algorithm = "conservative_bf_core_level";
-    #else
-        std::string scheduling_algorithm = "conservative_bf";
-    #endif
-        try {
-          batch_compute_service = simulation->add(new wrench::BatchComputeService(
-						{"BatchHeadNode"}, {{"BatchNode1"}, {"BatchNode2"}}, "",
-						{{wrench::BatchComputeServiceProperty::BATCH_SCHEDULING_ALGORITHM, scheduling_algorithm}},
-						{{wrench::BatchComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 2048}}));
-        } catch (std::invalid_argument &e) {
-					std::cerr << "Error: " << e.what() << std::endl;
-					std::exit(1);
-		}
-    
-	/*
-     * Instantiating the WMS for executing workflow
-     */	
-	std::cerr << "Instatiating a WMS on WMSHost..." << std::endl;
-	auto wms = simulation->add(
-	new wrench::SimpleWMS(workflow, batch_compute_service, storage_service, {"WMSHost"}));
-
-	/*
-     * Instantiate a file registry service to be started on some host
-     */
-	std::string file_registry_service_host = hostname_list[(hostname_list.size() > 2) ? 1 : 0];
-	std::cerr << "Instantiating a FileRegistryService on " << file_registry_service_host << "..." << std::endl;
-	auto file_registry_service = simulation->add(new wrench::FileRegistryService(file_registry_service_host));
-
-	std:cerr << "Staging input files..." << std::endl;
-    for (auto const &f: workflow->getInputFiles()) {
-        try {
-            simulation->stageFile(f, storage_services);
-		} catch (std::runtime_error &e) {
-		    std::cerr << "Exception: " << e.what() << std::endl;
-			return 0;
-		}
+#ifndef ENABLE_BATSCHED
+    std::string scheduling_algorithm = "conservative_bf_core_level";
+#else
+    std::string scheduling_algorithm = "conservative_bf";
+#endif
+    try
+    {
+        batch_compute_service = simulation->add(new wrench::BatchComputeService(
+            {"BatchHeadNode"}, {{"BatchNode1"}, {"BatchNode2"}}, "",
+            {{wrench::BatchComputeServiceProperty::BATCH_SCHEDULING_ALGORITHM, scheduling_algorithm}},
+            {{wrench::BatchComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 2048}}));
+    }
+    catch (std::invalid_argument &e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::exit(1);
     }
 
-	/*
+    /*
+     * Instantiating the WMS for executing workflow
+     */
+    std::cerr << "Instatiating a WMS on WMSHost..." << std::endl;
+    auto wms = simulation->add(
+        new wrench::SimpleWMS(workflow, batch_compute_service, storage_service, {"WMSHost"}));
+
+    /*
+     * Instantiate a file registry service to be started on some host
+     */
+    std::string file_registry_service_host = hostname_list[(hostname_list.size() > 2) ? 1 : 0];
+    std::cerr << "Instantiating a FileRegistryService on " << file_registry_service_host << "..." << std::endl;
+    auto file_registry_service = simulation->add(new wrench::FileRegistryService(file_registry_service_host));
+
+std:
+    cerr << "Staging input files..." << std::endl;
+    for (auto const &f : workflow->getInputFiles())
+    {
+        try
+        {
+            simulation->stageFile(f, storage_services);
+        }
+        catch (std::runtime_error &e)
+        {
+            std::cerr << "Exception: " << e.what() << std::endl;
+            return 0;
+        }
+    }
+
+    /*
      * Enable some output Workflow Task time stamps
      */
-	simulation->getOutput().enableWorkflowTaskTimestamps(true);
-	/*
+    simulation->getOutput().enableWorkflowTaskTimestamps(true);
+    /*
      * Enable some output Energy time stamps
      */
-	simulation->getOutput().enableEnergyTimestamps(true);
+    simulation->getOutput().enableEnergyTimestamps(true);
 
     /*
      * Launch the simulation
      */
-	std::cerr << "Launching the Simulation..." << std::endl;
-	try {
+    std::cerr << "Launching the Simulation..." << std::endl;
+    try
+    {
         simulation->launch();
-	} catch (std::runtime_error &e) {
-	    std::cerr << "Exception: " << e.what() << std::endl;
-		return 0;
     }
-	std::cerr << "Simulation Done!" << std::endl;
-	std::cerr << "Workflow completed at time: " << workflow->getCompletionDate() << std::endl;
+    catch (std::runtime_error &e)
+    {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return 0;
+    }
+    std::cerr << "Simulation Done!" << std::endl;
+    std::cerr << "Workflow completed at time: " << workflow->getCompletionDate() << std::endl;
 
-	simulation->getOutput().dumpWorkflowGraphJSON(workflow, "/temp/workflow.json", true);
+    simulation->getOutput().dumpWorkflowGraphJSON(workflow, "/temp/workflow.json", true);
 
     /*
      * Through some time-stamps and compute some statistics
@@ -165,21 +178,23 @@ int main(int argc, char **argv) {
     std::cerr << "Number of entries in TaskCompletion trace: " << trace.size() << std::endl;
     unsigned long num_failed_tasks = 0;
     double computation_communication_ratio_average = 0.0;
-    for (const auto &item: trace) {
-      auto task = item->getContent()->getTask();
-      if (task->getExecutionHistory().size() > 1) {
-        num_failed_tasks++;
-      }
-      double io_time = task->getExecutionHistory().top().read_input_end - task->getExecutionHistory().top().read_input_start;
-      io_time += task->getExecutionHistory().top().write_output_end - task->getExecutionHistory().top().write_output_start;
-      double compute_time = task->getExecutionHistory().top().computation_end - task->getExecutionHistory().top().computation_start;
-      computation_communication_ratio_average += compute_time / io_time;
+    for (const auto &item : trace)
+    {
+        auto task = item->getContent()->getTask();
+        if (task->getExecutionHistory().size() > 1)
+        {
+            num_failed_tasks++;
+        }
+        double io_time = task->getExecutionHistory().top().read_input_end - task->getExecutionHistory().top().read_input_start;
+        io_time += task->getExecutionHistory().top().write_output_end - task->getExecutionHistory().top().write_output_start;
+        double compute_time = task->getExecutionHistory().top().computation_end - task->getExecutionHistory().top().computation_start;
+        computation_communication_ratio_average += compute_time / io_time;
     }
 
-    computation_communication_ratio_average /= (double) (trace.size());
+    computation_communication_ratio_average /= (double)(trace.size());
 
     std::cerr << "Number of tasks that failed at least once: " << num_failed_tasks << "\n";
     std::cerr << "Average computation time / communication+IO time ratio over all tasks: " << computation_communication_ratio_average << "\n";
-    
+
     return 0;
 }
