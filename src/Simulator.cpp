@@ -128,8 +128,7 @@ int main(int argc, char **argv)
     std::cerr << "Instantiating a FileRegistryService on " << file_registry_service_host << "..." << std::endl;
     auto file_registry_service = simulation->add(new wrench::FileRegistryService(file_registry_service_host));
 
-std:
-    cerr << "Staging input files..." << std::endl;
+    std::cerr << "Staging input files..." << std::endl;
     for (auto const &f : workflow->getInputFiles())
     {
         try
