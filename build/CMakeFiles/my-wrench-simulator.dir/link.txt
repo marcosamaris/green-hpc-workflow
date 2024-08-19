@@ -1,1 +1,0 @@
-/usr/bin/g++-11 -rdynamic CMakeFiles/my-wrench-simulator.dir/src/SimpleWMS.cpp.o CMakeFiles/my-wrench-simulator.dir/src/SimpleWorkflowSimulator.cpp.o -o my-wrench-simulator  -Wl,-rpath,/usr/local/lib: /usr/local/lib/libwrench.a /usr/local/lib/libsimgrid.so /usr/local/lib/libwrenchwfcommonsworkflowparser.a 
