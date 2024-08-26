@@ -3,13 +3,31 @@
 <platform version="4.1">
     <zone id="AS0" routing="Full">
 
-        <host id="BatchHeadNode" speed="10Gf" core="1"/>
-        <host id="BatchNode1" speed="50Gf" core="10"/>
-        <host id="BatchNode2" speed="50Gf" core="10"/>
+        <!-- <host id="BatchHeadNode" speed="10Gf" core="1"/> -->
+        <host id="BatchHeadNode" speed="10Gf" core="1">
+			<prop id="wattage_per_state" value="10.00:100.00"/>
+        </host>
+        <!-- <host id="BatchNode1" speed="50Gf" core="10"/> -->
+        <host id="BatchNode1" speed="50Gf" core="10">
+			<prop id="wattage_per_state" value="10.00:100.00"/>
+        </host>
+        <!-- <host id="BatchNode2" speed="50Gf" core="10"/> -->
+        <host id="BatchNode2" speed="50Gf" core="10">
+			<prop id="wattage_per_state" value="10.00:100.00"/>
+        </host>
 
-        <host id="CloudHeadNode" speed="10Gf" core="2"/>
-        <host id="CloudNode1" speed="60Gf" core="4"/>
-        <host id="CloudNode2" speed="60Gf" core="4"/>
+        <!-- <host id="CloudHeadNode" speed="10Gf" core="2"/> -->
+        <host id="CloudHeadNode" speed="10Gf" core="2">
+			<prop id="wattage_per_state" value="10.00:100.00"/>
+        </host>
+        <!-- <host id="CloudNode1" speed="60Gf" core="4"/> -->
+        <host id="CloudNode1" speed="60Gf" core="4">
+			<prop id="wattage_per_state" value="10.00:100.00"/>
+        </host>
+        <!-- <host id="CloudNode2" speed="60Gf" core="4"/> -->
+        <host id="CloudNode2" speed="60Gf" core="4">
+			<prop id="wattage_per_state" value="10.00:100.00"/>
+        </host>
         
         <host id="WMSHost" speed="10Gf" core="1">
             <disk id="large_disk" read_bw="50MBps" write_bw="50MBps">

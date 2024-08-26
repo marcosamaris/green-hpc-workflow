@@ -4,7 +4,7 @@ services:
   wrench:
     image: wrenchproject/wrench:2.2
     volumes:
-      - .:/home/wrench
+      - ./..:/home/wrench
     command: /bin/bash
     tty: true
     stdin_open: true
