@@ -10,6 +10,9 @@
 #include <iostream>
 #include <wrench.h>
 
+#include <fstream>
+#include <string>
+
 #include "SimpleWMS.h"
 #include <wrench/tools/wfcommons/WfCommonsWorkflowParser.h>
 
@@ -22,7 +25,8 @@
  * @return 0 if the simulation has successfully completed
  */
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 
     /*
      * Declaration of the top-level WRENCH simulation object
@@ -40,7 +44,8 @@ int main(int argc, char **argv) {
     /*
      * Parsing of the command-line arguments for this WRENCH simulation
      */
-    if (argc != 3) {
+    if (argc != 3)
+    {
         std::cerr << "Usage: " << argv[0] << " <xml platform file> <workflow file> [--log=simple_wms.threshold=info]" << std::endl;
         exit(1);
     }
@@ -80,7 +85,6 @@ int main(int argc, char **argv) {
     auto storage_service = simulation->add(wrench::SimpleStorageService::createSimpleStorageService({"WMSHost"}, {"/"}));
     storage_services.insert(storage_service);
 
-
     /* Create a list of compute services that will be used by the WMS */
     std::set<std::shared_ptr<wrench::ComputeService>> compute_services;
 
@@ -104,12 +108,15 @@ int main(int argc, char **argv) {
 #else
     std::string scheduling_algorithm = "conservative_bf";
 #endif
-    try {
+    try
+    {
         batch_compute_service = simulation->add(new wrench::BatchComputeService(
-                {"BatchHeadNode"}, {{"BatchNode1"}, {"BatchNode2"}}, "",
-                {{wrench::BatchComputeServiceProperty::BATCH_SCHEDULING_ALGORITHM, scheduling_algorithm}},
-                {{wrench::BatchComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 2048}}));
-    } catch (std::invalid_argument &e) {
+            {"BatchHeadNode"}, {{"BatchNode1"}, {"BatchNode2"}}, "",
+            {{wrench::BatchComputeServiceProperty::BATCH_SCHEDULING_ALGORITHM, scheduling_algorithm}},
+            {{wrench::BatchComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 2048}}));
+    }
+    catch (std::invalid_argument &e)
+    {
         std::cerr << "Error: " << e.what() << std::endl;
         std::exit(1);
     }
@@ -125,11 +132,14 @@ int main(int argc, char **argv) {
      * configurable properties for each kind of service.
      */
     std::shared_ptr<wrench::CloudComputeService> cloud_compute_service;
-    try {
+    try
+    {
         cloud_compute_service = simulation->add(new wrench::CloudComputeService(
-                {"CloudHeadNode"}, {{"CloudNode1"}, {"CloudNode2"}}, "", {},
-                {{wrench::CloudComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 1024}}));
-    } catch (std::invalid_argument &e) {
+            {"CloudHeadNode"}, {{"CloudNode1"}, {"CloudNode2"}}, "", {},
+            {{wrench::CloudComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 1024}}));
+    }
+    catch (std::invalid_argument &e)
+    {
         std::cerr << "Error: " << e.what() << std::endl;
         std::exit(1);
     }
@@ -141,8 +151,8 @@ int main(int argc, char **argv) {
      */
     // std::cerr << "Instantiating a WMS on WMSHost..." << std::endl;
     auto wms = simulation->add(
-            new wrench::SimpleWMS(workflow, batch_compute_service,
-                                  cloud_compute_service, storage_service, {"WMSHost"}));
+        new wrench::SimpleWMS(workflow, batch_compute_service,
+                              cloud_compute_service, storage_service, {"WMSHost"}));
 
     /* Instantiate a file registry service to be started on some host. This service is
      * essentially a replica catalog that stores <file , storage service> pairs so that
@@ -151,7 +161,7 @@ int main(int argc, char **argv) {
     std::string file_registry_service_host = hostname_list[(hostname_list.size() > 2) ? 1 : 0];
     // std::cerr << "Instantiating a FileRegistryService on " << file_registry_service_host << "..." << std::endl;
     auto file_registry_service =
-            simulation->add(new wrench::FileRegistryService(file_registry_service_host));
+        simulation->add(new wrench::FileRegistryService(file_registry_service_host));
 
     /* It is necessary to store, or "stage", input files for the first task(s) of the workflow on some storage
      * service, so that workflow execution can be initiated. The getInputFiles() method of the Workflow class
@@ -159,10 +169,14 @@ int main(int argc, char **argv) {
      * These files are then staged on the storage service.
      */
     // std::cerr << "Staging input files..." << std::endl;
-    for (auto const &f: workflow->getInputFiles()) {
-        try {
+    for (auto const &f : workflow->getInputFiles())
+    {
+        try
+        {
             simulation->stageFile(f, storage_service);
-        } catch (std::runtime_error &e) {
+        }
+        catch (std::runtime_error &e)
+        {
             std::cerr << "Exception: " << e.what() << std::endl;
             return 0;
         }
@@ -170,13 +184,16 @@ int main(int argc, char **argv) {
 
     /* Enable some output time stamps */
     simulation->getOutput().enableWorkflowTaskTimestamps(true);
-	simulation->getOutput().enableEnergyTimestamps(true);
+    simulation->getOutput().enableEnergyTimestamps(true);
 
     /* Launch the simulation. This call only returns when the simulation is complete. */
     // std::cerr << "Launching the Simulation..." << std::endl;
-    try {
+    try
+    {
         simulation->launch();
-    } catch (std::runtime_error &e) {
+    }
+    catch (std::runtime_error &e)
+    {
         std::cerr << "Exception: " << e.what() << std::endl;
         return 0;
     }
@@ -196,9 +213,11 @@ int main(int argc, char **argv) {
     double io_time_input = 0.0;
     double io_time_output = 0.0;
     double compute_time = 0.0;
-    for (const auto &item: trace) {
+    for (const auto &item : trace)
+    {
         auto task = item->getContent()->getTask();
-        if (task->getExecutionHistory().size() > 1) {
+        if (task->getExecutionHistory().size() > 1)
+        {
             num_failed_tasks++;
         }
         io_time_input = task->getExecutionHistory().top().read_input_end - task->getExecutionHistory().top().read_input_start;
@@ -206,49 +225,44 @@ int main(int argc, char **argv) {
         compute_time = task->getExecutionHistory().top().computation_end - task->getExecutionHistory().top().computation_start;
         computation_communication_ratio_average += compute_time / (io_time_input + io_time_output);
     }
-    
-    computation_communication_ratio_average /= (double) (trace.size());
 
+    computation_communication_ratio_average /= (double)(trace.size());
 
-    for (int index = 0; index < simulation->getHostnameList().size(); index++) {
-        string host_name = simulation->getHostnameList()[index];
-        std::cerr << host_name << ", "
-                    << simulation->getHostNumCores(host_name) << ", " 
-                    << workflow->getNumberOfTasks() << ", "
-                    << trace.size() << ", " 
-                    << num_failed_tasks << ", "
-                    << compute_time << ", "
-                    << io_time_input << ", "
-                    << io_time_output << ", " 
-                    << computation_communication_ratio_average << ", " 
-                    << simulation->getEnergyConsumed(host_name) << ", "
-                    << workflow->getCompletionDate() << "\n" << std::endl;
+    std::ofstream csvFile;
+
+    csvFile.open("../datas/workflow_output/output.csv", std::ios::app);
+
+    if (!csvFile.is_open())
+    {
+        std::cerr << "Erro ao abrir o arquivo CSV!" << std::endl;
     }
 
-    // using VarType = variant<int, double, string>;
-    // vector<vector<VarType>> listOfLists;
+    // Adiciona o cabeçalho apenas na primeira vez que abrir o arquivo
+    if (csvFile.tellp() == 0)
+    {
+        csvFile << "host_name,num_cores,num_tasks,trace_size,failed_tasks,compute_time,IO_time_input,IO_time_output,Comm/Comp_Ratio,energy_consumed,completion_date\n";
+    }
 
-    // std::cerr << "Number of entries in TaskCompletion trace: " << trace.size() << std::endl;
+    for (int index = 0; index < simulation->getHostnameList().size(); index++)
+    {
+        std::string host_name = simulation->getHostnameList()[index];
 
-    // std::cerr << "Number of tasks that failed at least once: " << num_failed_tasks << "\n";
+        csvFile << host_name << ","
+                << simulation->getHostNumCores(host_name) << ","
+                << workflow->getNumberOfTasks() << ","
+                << trace.size() << ","
+                << num_failed_tasks << ","
+                << compute_time << ","
+                << io_time_input << ","
+                << io_time_output << ","
+                << computation_communication_ratio_average << ","
+                << simulation->getEnergyConsumed(host_name) << ","
+                << workflow->getCompletionDate() << "\n";
+    }
 
-    // std:: cerr << "communication input time: " << io_time_input << "\n";
-    // std:: cerr << "communication output time: " << io_time_output << "\n";
-    
-    // std::cerr << "Average computation time / communication+IO time ratio over all tasks: " << computation_communication_ratio_average << "\n";
+    std::cerr << "Dados exportados para o CSV com sucesso." << std::endl;
 
-	// std::cerr << "Total energy consumption at host WMSHost: " << simulation->getEnergyConsumed("WMSHost") << "\n";
-    // std::cerr << "Processors in node WMSHost: " << simulation->getHostNumCores("WMSHost") << "\n";
-    
-    // std::cerr << "Total energy consumption at host BatchHeadNode: " << simulation->getEnergyConsumed("BatchHeadNode")<< "\n";
-    // std::cerr << "Processors in node BatchHeadNode: " << simulation->getHostNumCores("BatchHeadNode") << "\n";
-    // std::cerr << "Total energy consumption at host BatchNode1: " << simulation->getEnergyConsumed("BatchNode1")<< "\n";
-    // std::cerr << "Total energy consumption at host BatchNode2: " << simulation->getEnergyConsumed("BatchNode2")<< "\n";
-
-    // std::cerr << "Total energy consumption at host CloudHeadNode: " << simulation->getEnergyConsumed("CloudHeadNode")<< "\n";
-    // std::cerr << "Processors in node CloudHeadNode: " << simulation->getHostNumCores("CloudHeadNode") << "\n";
-    // std::cerr << "Total energy consumption at host CloudNode1: " << simulation->getEnergyConsumed("CloudNode1")<< "\n";
-    // std::cerr << "Total energy consumption at host CloudNode2: " << simulation->getEnergyConsumed("CloudNode2")<< "\n";
+    csvFile.close();
 
     return 0;
 }

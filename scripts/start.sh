@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-echo "host, cores, total_tasks, tasks_completed, failed_tasks, computation_time input_time, output_time, average_computation_time, total_energy_consumption, completed_time"
-
 platform="../platforms/cloud_batch_platform.xml"
 
 for recipe in ../datas/* ; do

@@ -31,6 +31,8 @@
 *.out
 *.app
 
-# Folders
+# Folders and files
 build/
 .vscode/
+.bash_history
+*.csv
