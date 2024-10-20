@@ -259,9 +259,7 @@ int main(int argc, char **argv)
                 << simulation->getEnergyConsumed(host_name) << ","
                 << workflow->getCompletionDate() << "\n";
     }
-
-    std::cerr << "Dados exportados para o CSV com sucesso." << std::endl;
-
+    
     csvFile.close();
 
     return 0;
