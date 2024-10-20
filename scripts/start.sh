@@ -10,4 +10,6 @@ for recipe in ../datas/* ; do
     fi
 done
 
+echo "All recipes have been executed"
+
 exit
