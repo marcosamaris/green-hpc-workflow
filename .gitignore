@@ -37,4 +37,4 @@ build/
 .bash_history
 .cache
 .local
-.config
+.gitconfig
