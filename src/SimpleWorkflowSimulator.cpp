@@ -230,11 +230,12 @@ int main(int argc, char **argv)
 
     std::ofstream csvFile;
 
-    csvFile.open("../datas/workflow_output/output.csv", std::ios::app);
+    csvFile.open("/home/wrench/datas/execution_output.csv", std::ios::app);
 
     if (!csvFile.is_open())
     {
         std::cerr << "Erro ao abrir o arquivo CSV!" << std::endl;
+        std::cerr << "Erro do sistema: " << strerror(errno) << std::endl;
     }
 
     // Adiciona o cabeçalho apenas na primeira vez que abrir o arquivo

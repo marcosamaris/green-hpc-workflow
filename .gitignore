@@ -35,3 +35,6 @@
 build/
 .vscode/
 .bash_history
+.cache
+.local
+.config
