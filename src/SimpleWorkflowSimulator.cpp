@@ -10,10 +10,13 @@
 #include <iostream>
 #include <wrench.h>
 
+
 #include <fstream>
 #include <string>
 
 #include "SimpleWMS.h"
+
+///usr/local/include/wrench/tools/wfcommons/WfCommonsWorkflowParser.h
 #include <wrench/tools/wfcommons/WfCommonsWorkflowParser.h>
 
 /**
@@ -241,26 +244,39 @@ int main(int argc, char **argv)
     // Adiciona o cabeçalho apenas na primeira vez que abrir o arquivo
     if (csvFile.tellp() == 0)
     {
-        csvFile << "host_name,num_cores,num_tasks,trace_size,failed_tasks,compute_time,IO_time_input,IO_time_output,Comm/Comp_Ratio,energy_consumed,completion_date\n";
+        csvFile << "runid,host_name,num_cores,num_tasks,trace_size,failed_tasks,compute_time,IO_time_input,IO_time_output,Comm/Comp_Ratio,power,completion_date\n";
     }
 
-    for (int index = 0; index < simulation->getHostnameList().size(); index++)
+    csvFile << std::fixed << std::setprecision(2);
+
+    int lista_de_nos = simulation->getHostnameList().size();
+    for (int index = 0; index < lista_de_nos; index++)
     {
         std::string host_name = simulation->getHostnameList()[index];
+        int num_tasks = workflow->getNumberOfTasks();
+        int num_cores = simulation->getHostNumCores(host_name);
+        std::string runId = "extk-" + std::to_string(num_tasks);
+        /* return current energy consumption in joules */
+        double energy_consumed = simulation->getEnergyConsumed(host_name);
+        /* return a date in seconds */
+        double conclusion_time = workflow->getCompletionDate();
 
-        csvFile << host_name << ","
-                << simulation->getHostNumCores(host_name) << ","
-                << workflow->getNumberOfTasks() << ","
+        /* Calculate the power, joule / second */
+        double watts = energy_consumed / conclusion_time;
+
+        csvFile << runId << ","
+                << host_name << ","
+                << num_cores << ","
+                << num_tasks << ","
                 << trace.size() << ","
                 << num_failed_tasks << ","
                 << compute_time << ","
                 << io_time_input << ","
                 << io_time_output << ","
                 << computation_communication_ratio_average << ","
-                << simulation->getEnergyConsumed(host_name) << ","
-                << workflow->getCompletionDate() << "\n";
+                << watts << ","
+                << conclusion_time << "\n";
     }
-    
     csvFile.close();
 
     return 0;

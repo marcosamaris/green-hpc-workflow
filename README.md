@@ -1,4 +1,4 @@
-# GreenWorkSim
+# Workflow Energy Consumption Simulator
 
 Este repositório contém scripts e ferramentas para simular o consumo de energia durante a execução de workflows científicos utilizando o **WRENCH**. O objetivo é explorar e entender como diferentes configurações de workflows impactam o consumo de energia.
 
