@@ -1,17 +1,12 @@
-/**
- * Copyright (c) 2017-2021. The WRENCH Team.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
 
 #include <iostream>
 
 #include "SimpleWMS.h"
 
 WRENCH_LOG_CATEGORY(simple_wms, "Log category for Simple WMS");
+
+constexpr ssize_t GB = 1000000000ULL;
+constexpr double ram = 109.92;
 
 namespace wrench {
 
@@ -54,14 +49,18 @@ namespace wrench {
         // Create a data movement manager
         auto data_movement_manager = this->createDataMovementManager();
 
-        // Create and start two VMs on the cloud service to use for the whole execution
-        auto vm1 = this->cloud_compute_service->createVM(2, 0.0);// 2 cores, 0 RAM (RAM isn't used in this simulation)
+        // Create and start three VMs on the cloud service to use for the whole execution
+        auto vm1 = this->cloud_compute_service->createVM(28, ram * GB);
         auto vm1_cs = this->cloud_compute_service->startVM(vm1);
-        this->core_utilization_map[vm1_cs] = 2;
+        this->core_utilization_map[vm1_cs] = 28;
 
-        auto vm2 = this->cloud_compute_service->createVM(4, 0.0);// 4 cores, 0 RAM (RAM isn't used in this simulation)
+        auto vm2 = this->cloud_compute_service->createVM(28, ram * GB);
         auto vm2_cs = this->cloud_compute_service->startVM(vm2);
-        this->core_utilization_map[vm2_cs] = 4;
+        this->core_utilization_map[vm2_cs] = 28;
+
+        auto vm3 = this->cloud_compute_service->createVM(28, ram * GB);
+        auto vm3_cs = this->cloud_compute_service->startVM(vm3);
+        this->core_utilization_map[vm3_cs] = 28;
 
         while (true) {
             // If a pilot job is not running on the batch service, let's submit one that asks
@@ -74,7 +73,7 @@ namespace wrench {
             }
 
             // Construct the list of currently available bare-metal services (on VMs and perhaps within pilot job as well)
-            std::set<std::shared_ptr<BareMetalComputeService>> available_compute_service = {vm1_cs, vm2_cs};
+            std::set<std::shared_ptr<BareMetalComputeService>> available_compute_service = {vm1_cs, vm2_cs, vm3_cs};
             if (this->pilot_job_is_running) {
                 available_compute_service.insert(pilot_job->getComputeService());
             }

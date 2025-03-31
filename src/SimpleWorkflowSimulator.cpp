@@ -114,7 +114,7 @@ int main(int argc, char **argv)
     try
     {
         batch_compute_service = simulation->add(new wrench::BatchComputeService(
-            {"BatchHeadNode"}, {{"BatchNode1"}, {"BatchNode2"}}, "",
+            {"BatchHeadNode"}, {{"BatchNode1"}, {"BatchNode2"}, {"BatchNode3"}}, "",
             {{wrench::BatchComputeServiceProperty::BATCH_SCHEDULING_ALGORITHM, scheduling_algorithm}},
             {{wrench::BatchComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 2048}}));
     }
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
     try
     {
         cloud_compute_service = simulation->add(new wrench::CloudComputeService(
-            {"CloudHeadNode"}, {{"CloudNode1"}, {"CloudNode2"}}, "", {},
+            {"CloudHeadNode"}, {{"CloudNode1"}, {"CloudNode2"}, {"CloudNode3"}}, "", {},
             {{wrench::CloudComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 1024}}));
     }
     catch (std::invalid_argument &e)
