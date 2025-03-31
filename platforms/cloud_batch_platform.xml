@@ -31,7 +31,7 @@
         
         <host id="WMSHost" speed="10Gf" core="1">
             <disk id="large_disk" read_bw="50MBps" write_bw="50MBps">
-                <prop id="size" value="5000GiB"/>
+                <prop id="size" value="50000GiB"/>
                 <prop id="mount" value="/"/>
             </disk>
 			<prop id="wattage_per_state" value="10.00:100.00"/>

@@ -1,0 +1,35 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "https://simgrid.org/simgrid.dtd">
+<platform version="4.1">
+    <config>
+        <prop id="network/model" value="LV08"/>
+    </config>
+
+    <zone id="AS0" routing="Full">
+        <!-- Nó de Gerenciamento -->
+        <host id="WMSHost" speed="1000Gf" core="32">
+            <disk id="storage" read_bw="5000MBps" write_bw="5000MBps">
+                <prop id="size" value="156TiB"/>
+                <prop id="mount" value="/"/>
+            </disk>
+            <prop id="wattage_per_state" value="50.00:250.00:800.00"/>
+        </host>
+
+        <!-- Cluster de Nós Computacionais -->
+        <cluster id="ComputeCluster" prefix="ComputeNode" radical="0-30" speed="2800Gf" core="28" bw="100000MBps" lat="0.01ms"/>
+
+        <!-- Nó com GPU NVIDIA Tesla V100 -->
+        <host id="GPUNode" speed="14000Gf" core="512">
+            <prop id="wattage_per_state" value="250.00:800.00:3000.00"/>
+        </host>
+
+        <!-- Links de Rede -->
+        <link id="backbone" bandwidth="50000MBps" latency="0.05ms"/>
+
+        <!-- Rotas de Comunicação -->
+        <route src="WMSHost" dst="GPUNode"> <link_ctn id="backbone"/></route>
+        <route src="WMSHost" dst="ComputeCluster"> <link_ctn id="backbone"/></route>
+        <route src="ComputeCluster" dst="GPUNode"> <link_ctn id="backbone"/></route>
+    </zone>
+</platform>
+
