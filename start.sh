@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-platform="platforms/cloud_batch_platform.xml"
+platform="platforms/apollo_2000_platform.xml"
 
 for recipe in workflows/* ; do
     my_recipe=$(basename "$recipe")

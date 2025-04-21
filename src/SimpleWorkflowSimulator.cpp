@@ -80,7 +80,7 @@ int main(int argc, char **argv)
     try
     {
         batch_compute_service = simulation->add(new wrench::BatchComputeService(
-            {"BatchHeadNode"}, {{"BatchNode1"}, {"BatchNode2"}, {"BatchNode3"}}, "",
+            {"BatchHeadNode"}, {{"Node1"}, {"Node2"}, {"Node3"}, {"Node4"}, {"Node5"}, {"Node6"}, {"Node7"}, {"Node8"}, {"Node9"}, {"Node10"}, {"Node11"}, {"Node12"}, {"Node13"}, {"Node14"}, {"Node15"}, {"Node16"}, {"Node17"}, {"Node18"}, {"Node19"}, {"Node20"}, {"Node21"}, {"Node22"}, {"Node23"}, {"Node24"}, {"Node25"}, {"Node26"}, {"Node27"}, {"Node28"}, {"Node29"}, {"Node30"}}, "",
             {{wrench::BatchComputeServiceProperty::BATCH_SCHEDULING_ALGORITHM, scheduling_algorithm}},
             {{wrench::BatchComputeServiceMessagePayload::STOP_DAEMON_MESSAGE_PAYLOAD, 2048}}));
     }
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
         csvFile << "runid,host_name,num_cores,num_tasks,trace_size,failed_tasks,compute_time,IO_time_input,IO_time_output,Comm/Comp_Ratio,power,completion_date\n";
     }
 
-    csvFile << std::fixed << std::setprecision(2);
+    //csvFile << std::fixed << std::setprecision(2);
 
     int lista_de_nos = simulation->getHostnameList().size();
     for (int index = 0; index < lista_de_nos; index++)
