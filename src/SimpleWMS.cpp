@@ -6,7 +6,7 @@
 WRENCH_LOG_CATEGORY(simple_wms, "Log category for Simple WMS");
 
 constexpr ssize_t GB = 1000000000ULL;
-constexpr double ram = 109.92;
+constexpr double ram = 128.00;
 
 namespace wrench {
 
