@@ -194,7 +194,7 @@
         </host>
 
         <!-- Link de rede -->
-        <link id="backbone" bandwidth="50000MBps" latency="0.05ms"/>
+        <link id="backbone" bandwidth="10000MBps" latency="0.5ms"/>
 
         <!-- Rotas entre todos os nós -->
         <route src="WMSHost" dst="BatchHeadNode"><link_ctn id="backbone"/></route>
