@@ -49,7 +49,6 @@ int main(int argc, char **argv)
     std::cerr << "Loading workflow..." << std::endl;
     std::shared_ptr<wrench::Workflow> workflow;
     workflow = wrench::WfCommonsWorkflowParser::createWorkflowFromJSON(workflow_file, "100Gf");
-    // std::cerr << "The workflow has " << workflow->getNumberOfTasks() << " tasks " << std::endl;
     std::cerr.flush();
 
     /* Reading and parsing the platform description file to instantiate a simulated platform */
@@ -149,8 +148,6 @@ int main(int argc, char **argv)
         std::cerr << "Exception: " << e.what() << std::endl;
         return 0;
     }
-    // std::cerr << "Simulation done!" << std::endl;
-    // std::cerr << "Workflow completed at time: " << workflow->getCompletionDate() << std::endl;
 
     simulation->getOutput().dumpWorkflowGraphJSON(workflow, "/tmp/workflow.json", true);
 
@@ -162,6 +159,11 @@ int main(int argc, char **argv)
     double io_time_input = 0.0;
     double io_time_output = 0.0;
     double compute_time = 0.0;
+    unsigned long total_bytes_read = 0.0;
+    unsigned long total_bytes_write = 0.0;
+    // std::vector<double> flops_per_task;
+    // std::vector<sg_size_t> memory_req_task;
+    std::vector<unsigned long> cores_alloc_task;
     for (const auto &item : trace)
     {
         auto task = item->getContent()->getTask();
@@ -169,10 +171,18 @@ int main(int argc, char **argv)
         {
             num_failed_tasks++;
         }
+        /* Seconds */
         io_time_input = task->getExecutionHistory().top().read_input_end - task->getExecutionHistory().top().read_input_start;
         io_time_output = task->getExecutionHistory().top().write_output_end - task->getExecutionHistory().top().write_output_start;
         compute_time = task->getExecutionHistory().top().computation_end - task->getExecutionHistory().top().computation_start;
         computation_communication_ratio_average += compute_time / (io_time_input + io_time_output);
+        /* Bytes */
+        total_bytes_read += task->getBytesRead();
+        total_bytes_write += task->getBytesWritten();
+        // memory_req_task.push_back(task->getMemoryRequirement());
+        
+        cores_alloc_task.push_back(task->getNumCoresAllocated());
+        // flops_per_task.push_back(task->getFlops());
     }
 
     computation_communication_ratio_average /= (double)(trace.size());
@@ -190,10 +200,34 @@ int main(int argc, char **argv)
     /* Add the header only the first time you open the file */
     if (csvFile.tellp() == 0)
     {
-        csvFile << "runid,host_name,num_cores,num_tasks,trace_size,failed_tasks,compute_time,IO_time_input,IO_time_output,Comm/Comp_Ratio,power,completion_date\n";
+        csvFile << "run_id,host_name,num_of_cores,cores_allocated_task,num_of_tasks,avg_task_execution,tasks_failed,compute_time,io_input_time,io_output_time,comm_comp_ratio,total_bytes_read,total_bytes_write,completion_date,power\n";
     }
 
     //csvFile << std::fixed << std::setprecision(2);
+
+    // std::ostringstream flops_stream;
+    // for (size_t i = 0; i < flops_per_task.size(); ++i) {
+    //     flops_stream << flops_per_task[i];
+    //     if (i != flops_per_task.size() - 1) {
+    //         flops_stream << ";";  // separador entre os valores
+    //     }
+    // }
+
+    // std::ostringstream memory_stream;
+    // for (size_t i = 0; i < memory_req_task.size(); ++i) {
+    //     memory_stream << memory_req_task[i];
+    //     if (i != memory_req_task.size() - 1) {
+    //         memory_stream << ";";
+    //     }
+    // }
+
+    std::ostringstream cores_stream;
+    for (size_t i = 0; i < cores_alloc_task.size(); ++i) {
+        cores_stream << cores_alloc_task[i];
+        if (i != cores_alloc_task.size() - 1) {
+            cores_stream << ";";
+        }
+    }
 
     int lista_de_nos = simulation->getHostnameList().size();
     for (int index = 0; index < lista_de_nos; index++)
@@ -208,20 +242,29 @@ int main(int argc, char **argv)
         double conclusion_time = workflow->getCompletionDate();
 
         /* Calculate the power, joule / second */
-        double watts = energy_consumed / conclusion_time;
+        double power = energy_consumed / conclusion_time;
+
+        /* Average time per task in seconds */
+        double avg_task_duration = compute_time / (num_tasks - num_failed_tasks);
 
         csvFile << runId << ","
                 << host_name << ","
                 << num_cores << ","
+                << cores_stream.str() << ","
                 << num_tasks << ","
-                << trace.size() << ","
+                << avg_task_duration << ","
+                //<< memory_stream.str() << ","
+                //<< trace.size() << ","
                 << num_failed_tasks << ","
                 << compute_time << ","
                 << io_time_input << ","
                 << io_time_output << ","
                 << computation_communication_ratio_average << ","
-                << watts << ","
-                << conclusion_time << "\n";
+                << total_bytes_read << ","
+                << total_bytes_write << ","
+                << conclusion_time << ","
+                // << flops_stream.str() << ","
+                << power << "\n";
     }
     csvFile.close();
 

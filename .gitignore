@@ -34,7 +34,13 @@
 # Folders and files
 build/
 .vscode/
+.vscode-server/
 .bash_history
 .cache
 .local
 .gitconfig
+.dotnet
+.gnupg
+.sudo_as_admin_sucessful
+.python_history
+.lesshst

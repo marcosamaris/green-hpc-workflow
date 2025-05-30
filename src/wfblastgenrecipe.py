@@ -11,6 +11,8 @@ except ValueError:
 
 MIN_TASKS = 60
 
+count = 0
+
 output_dir = pathlib.Path(__file__).parent.parent / 'workflows' / 'blast'
 output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -22,6 +24,12 @@ for amount_tasks in range(MIN_TASKS, MIN_TASKS + amount_recipe * 10, 10):
         output_path = output_dir / f'blast-workflow-{amount_tasks}-{index}.json'
         try:
             workflow.write_json(output_path)
+            count += 1
+            print(f"Created Recipes: {count}/{amount_recipe}")
         except Exception as e:
             print(f"Error writing {output_path}: {e}")
+
+
+print("Done!!")       
+
 
