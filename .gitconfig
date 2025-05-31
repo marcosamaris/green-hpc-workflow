@@ -2,4 +2,4 @@
 	email = rafaelt.ibarbosa@gmail.com
 	name = Felipe Rafael Barbosa
 [credential]
-	helper = "!f() { /home/wrench/.vscode-server/bin/848b80aeb52026648a8ff9f7c45a9b0a80641e2e/node /tmp/vscode-remote-containers-a82abac1-bc37-4ee5-82f0-fc710709498f.js git-credential-helper $*; }; f"
+	helper = "!f() { /home/wrench/.vscode-server/bin/848b80aeb52026648a8ff9f7c45a9b0a80641e2e/node /tmp/vscode-remote-containers-ecfd82ee-d92e-44c5-8477-d455bed242a7.js git-credential-helper $*; }; f"
